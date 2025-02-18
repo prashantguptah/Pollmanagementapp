@@ -1,8 +1,6 @@
 <template>
   
 
- 
-
 <h1 class="text-3xl font-bold text-center text-gray-800 dark:text-white my-6 border-b-4 border-blue-500 pb-2">
   Active Polls
 </h1>
@@ -111,6 +109,10 @@ const userId = authStore.user?.uid;
 const polls = ref([]);
 const selectedOptions = ref({}); 
 
+definePageMeta({
+  middleware: "auth",
+});
+
 // const fetchPolls = async () => {
 //   const fetchedPolls = await getPolls(); // 
 //   polls.value = fetchedPolls; // 
@@ -119,11 +121,25 @@ const selectedOptions = ref({});
 
 const fetchPolls = async () => {
   const fetchedPolls = await getPolls();
+  const userVotes = {}
+
+  fetchedPolls.forEach((poll) => {
+    if (poll.votedUsers?.[userId]) {
+      userVotes[poll.id] = poll.votedUsers[userId];
+    }
+  });
+
   polls.value = fetchedPolls.map((poll) => ({
     ...poll,
     isUpdating: false,
   }));
+  selectedOptions.value = userVotes; 
 };
+
+watch(() => authStore.user?.uid, async (newUserId) => {
+  userId.value = newUserId;
+  await fetchPolls(); 
+});
 
 const submitVote = async (pollId) => {
   if (!selectedOptions.value[pollId]) return;

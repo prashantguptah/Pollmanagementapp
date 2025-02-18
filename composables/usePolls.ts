@@ -5,23 +5,45 @@ import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs ,getDoc } from "
 export const usePolls = () => {
   const { $db } = useNuxtApp();
   const polls = ref([]);
+  const selectedOptions = ref({});
 
-  // ✅ Fix: Ensure getPolls returns data properly
+
   const getPolls = async () => {
     try {
       const snapshot = await getDocs(collection($db, "polls"));
       const fetchedPolls = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      polls.value = fetchedPolls;  // ✅ Update ref properly
-      return fetchedPolls;  // ✅ Always return fetched data
+      polls.value = fetchedPolls;  
+      return fetchedPolls; 
     } catch (error) {
       console.error("Error fetching polls:", error);
-      return []; // Return empty array on failure
+      return []; 
     }
   };
 
+  const getPollsOptions = async (userId) => {
+    try {
+      const snapshot = await getDocs(collection($db, "polls"));
+      const fetchedPolls = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+      // Store user's previous votes
+      const userVotes = {};
+      fetchedPolls.forEach((poll) => {
+        if (poll.votedUsers?.[userId]) {
+          userVotes[poll.id] = poll.votedUsers[userId];
+        }
+      });
+
+      polls.value = fetchedPolls;
+      selectedOptions.value = userVotes; 
+      return fetchedPolls;
+    } catch (error) {
+      console.error("Error fetching polls:", error);
+      return [];
+    }
+  };
   const createPoll = async (poll) => {
     await addDoc(collection($db, "polls"), poll);
-    return await getPolls(); // ✅ Fetch updated polls after creation
+    return await getPolls(); 
   };
 
 
@@ -29,20 +51,20 @@ export const usePolls = () => {
     try {
       const pollRef = doc($db, "polls", id);
       await updateDoc(pollRef, updatedPoll);
-      return await getPolls(); // Refresh polls after update
+      return await getPolls(); 
     } catch (error) {
       console.error("Error updating poll:", error);
     }
   };
   
 
-  const deletePoll = async (id) => { // ✅ Fix function name to `deletePoll`
+  const deletePoll = async (id) => { 
     await deleteDoc(doc($db, "polls", id));
-    return await getPolls(); // ✅ Fetch updated polls after deletion
+    return await getPolls(); 
   };
 
 
-   // Voting function (Handles both initial vote & update)
+   
   const voteOnPoll = async (pollId, userId, selectedOption) => {
     const pollRef = doc($db, "polls", pollId);
 
@@ -68,6 +90,8 @@ export const usePolls = () => {
 
       await updateDoc(pollRef, { votes, votedUsers });
 
+      selectedOptions.value[pollId] = selectedOption;
+
       return { success: true };
     } catch (error) {
       console.error("Error voting on poll:", error);
@@ -77,5 +101,5 @@ export const usePolls = () => {
 
   
 
-  return { polls, getPolls, createPoll, updatePoll, deletePoll, voteOnPoll }; // ✅ Ensure correct function names
+  return { polls, getPolls, createPoll, updatePoll, deletePoll, voteOnPoll , getPollsOptions}; 
 };
