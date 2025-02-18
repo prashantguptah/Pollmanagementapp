@@ -2,7 +2,7 @@
   <div class="admin-dashboard">
     <h2 class="text-3xl font-semibold mb-4">Admin Dashboard</h2>
 
-    <!-- Show Create Poll Button only if user is admin -->
+   
     <div v-if="isAdmin">
       <button
         @click="showPollForm = true"
@@ -10,6 +10,9 @@
       >
         Create Poll
       </button>
+
+
+
 
       <!-- Poll creation form -->
       <div
@@ -25,7 +28,7 @@
           @click="closeModal"
           class="absolute top-2 right-2 text-gray-500 hover:text-black text-2xl"
         >
-          &#10005; <!-- Cut icon (×) -->
+          &#10005; 
         </button>
         <h3 class="text-xl font-semibold mb-4">Create a Poll</h3>
         <input
@@ -124,7 +127,7 @@
             {{ poll.title }}
           </h3>
 
-          <!-- Display poll options -->
+        
           <ul class="space-y-2 text-gray-700">
             <li
               v-for="(option, index) in poll.options"
@@ -136,7 +139,6 @@
             </li>
           </ul>
 
-          <!-- Edit and Delete Buttons -->
           <div class="mt-4 flex justify-between  items-center">
             <button
               @click="editPoll(poll)"
@@ -155,7 +157,7 @@
       </ul>
     </div>
 
-    <!-- If not admin -->
+
     <div v-else>
       <p>You are not an admin.</p>
     </div>
@@ -170,7 +172,7 @@ import { useAuthStore } from "~/store";
 const { createPoll, getPolls, deletePoll, updatePoll } = usePolls();
 const authStore = useAuthStore();
 
-// Poll data
+
 const pollTitle = ref("");
 const pollOptions = ref([""]);
 const showPollForm = ref(false);
@@ -190,17 +192,17 @@ const handleCreatePoll = async () => {
   await createPoll(pollData);
   pollTitle.value = "";
   pollOptions.value = [""];
-  await fetchPolls(); // ✅ Refresh list after poll creation
+  await fetchPolls(); 
 };
 
 const fetchPolls = async () => {
-  const fetchedPolls = await getPolls(); // ✅ Use `await`
-  polls.value = fetchedPolls; // ✅ Ensure polls update properly
+  const fetchedPolls = await getPolls(); 
+  polls.value = fetchedPolls; 
 };
 
 const deletePollHandler = async (id) => {
   await deletePoll(id);
-  await fetchPolls(); // ✅ Refresh list after deletion
+  await fetchPolls(); 
 };
 const closeModal = () => {
   showPollForm.value = false;
@@ -216,33 +218,33 @@ const closeModal = () => {
 const showEditForm = ref(false);
 const editPollData = ref({ id: "", title: "", options: [] });
 
-// ✅ Open Edit Modal
+//  Open Edit Modal
 const editPoll = (poll) => {
-  editPollData.value = { ...poll }; // Copy existing data
+  editPollData.value = { ...poll }; 
   showEditForm.value = true;
 };
 
-// ✅ Handle Updating Poll
+// Handle Updating Poll
 const handleUpdatePoll = async () => {
   await updatePoll(editPollData.value.id, {
     title: editPollData.value.title,
     options: editPollData.value.options,
   });
   showEditForm.value = false;
-  await fetchPolls(); // Refresh data
+  await fetchPolls();
 };
 
 
-// ✅ Close Edit Modal
+//  Close Edit Modal
 const closeEditModal = () => {
   showEditForm.value = false;
 };
 
-// ✅ Add & Remove Edit Options
+//  Add & Remove Edit Options
 const addEditOption = () => editPollData.value.options.push("");
 const removeEditOption = (index) => editPollData.value.options.splice(index, 1);
 
-// On mount or when the form is toggled, fetch the polls
+
 onMounted(fetchPolls);
 </script>
 

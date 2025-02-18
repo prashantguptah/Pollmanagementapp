@@ -4,9 +4,7 @@
     <div class="welcome-section text-center py-12 bg-indigo-600 text-white">
       <h1 class="text-4xl font-bold mb-4">Welcome to the Poll Management App</h1>
       <p class="text-xl mb-8">Create, vote, and manage polls easily. Whether you're an admin or a user, you'll find it simple to interact with polls.</p>
-      <router-link to="/polls" class="bg-white text-indigo-600 px-6 py-2 rounded-md text-lg hover:bg-indigo-100">
-        View Polls
-      </router-link>
+     
     </div>
 
     <div class="features-section py-12">
@@ -52,10 +50,8 @@
 
     <div class="cta-section text-center py-12 bg-indigo-600 text-white">
       <h2 class="text-3xl font-semibold mb-4">Ready to Get Started?</h2>
-      <p class="text-lg mb-8">Sign in now to create or participate in polls.</p>
-      <router-link to="/login" class="bg-white text-indigo-600 px-6 py-2 rounded-md text-lg hover:bg-indigo-100">
-        Sign In
-      </router-link>
+      <p class="text-lg mb-8"> Walk around to create or participate in polls.</p>
+      
     </div>
   </div>
 </template>

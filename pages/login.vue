@@ -44,10 +44,10 @@ const handleLogin = async () => {
 
     authStore.setUser({
       email: email.value,
-      uid: userCredential.user.uid, // Accessing user.uid from the result
+      uid: userCredential.user.uid, 
     });
     alert("Login successful");
-    navigateTo("/admin");
+    navigateTo("/");
   } catch (error) {
     alert(error.message);
   }

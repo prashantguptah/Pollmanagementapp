@@ -40,8 +40,10 @@ export const usePolls = () => {
     await deleteDoc(doc($db, "polls", id));
     return await getPolls(); // ✅ Fetch updated polls after deletion
   };
-   // Voting function
-   const voteOnPoll = async (pollId, userId, selectedOption) => {
+
+
+   // Voting function (Handles both initial vote & update)
+  const voteOnPoll = async (pollId, userId, selectedOption) => {
     const pollRef = doc($db, "polls", pollId);
 
     try {
@@ -52,13 +54,15 @@ export const usePolls = () => {
       const votes = pollData.votes || {};
       const votedUsers = pollData.votedUsers || {};
 
-      // If user has already voted, prevent re-voting
+      // If user previously voted, reduce count for old vote
       if (votedUsers[userId]) {
-        console.warn("User has already voted on this poll.");
-        return { alreadyVoted: true };
+        const previousVote = votedUsers[userId];
+        if (previousVote !== selectedOption) {
+          votes[previousVote] = (votes[previousVote] || 1) - 1; // Reduce old vote count
+        }
       }
 
-      // Update votes count
+      // Update with new vote
       votes[selectedOption] = (votes[selectedOption] || 0) + 1;
       votedUsers[userId] = selectedOption;
 
