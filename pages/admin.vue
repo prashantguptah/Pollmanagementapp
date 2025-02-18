@@ -67,6 +67,50 @@
       </div>
     </div>
 
+
+
+
+       <!-- Edit Poll Modal -->
+<div
+  v-if="showEditForm"
+  class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+  @click="closeEditModal"
+>
+  <div class="p-6 bg-white w-[400px] rounded-lg shadow-md relative" @click.stop>
+    <button @click="closeEditModal" class="absolute top-2 right-2 text-gray-500 hover:text-black text-2xl">
+      &#10005;
+    </button>
+    <h3 class="text-xl font-semibold mb-4">Edit Poll</h3>
+    <input v-model="editPollData.title" placeholder="Poll Title" class="mb-4 p-2 w-full border border-gray-300 rounded-md" />
+
+    <div v-for="(option, index) in editPollData.options" :key="index" class="flex mb-2">
+      <input v-model="editPollData.options[index]" placeholder="Option" class="p-2 w-full border border-gray-300 rounded-md mr-2" />
+      <button @click="removeEditOption(index)" class="text-red-500">X</button>
+    </div>
+
+    <button @click="addEditOption" class="mb-4 text-white bg-green-600 px-4 py-2 rounded-md hover:bg-green-700">
+      Add Option
+    </button>
+
+    <div class="flex justify-between">
+      <button @click="handleUpdatePoll" class="text-white bg-blue-600 px-4 py-2 rounded-md hover:bg-blue-700">
+        Save Changes
+      </button>
+      <button @click="closeEditModal" class="text-white bg-gray-600 px-4 py-2 rounded-md hover:bg-gray-700">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
       <!-- Poll List -->
       <ul
         class="poll-list mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 w-[800px]"
@@ -119,11 +163,11 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref,computed, onMounted } from "vue";
 import { usePolls } from "~/composables/usePolls";
 import { useAuthStore } from "~/store";
 
-const { createPoll, getPolls, deletePoll } = usePolls();
+const { createPoll, getPolls, deletePoll, updatePoll } = usePolls();
 const authStore = useAuthStore();
 
 // Poll data
@@ -161,6 +205,42 @@ const deletePollHandler = async (id) => {
 const closeModal = () => {
   showPollForm.value = false;
 };
+
+
+
+
+
+
+
+// for edit modal
+const showEditForm = ref(false);
+const editPollData = ref({ id: "", title: "", options: [] });
+
+// ✅ Open Edit Modal
+const editPoll = (poll) => {
+  editPollData.value = { ...poll }; // Copy existing data
+  showEditForm.value = true;
+};
+
+// ✅ Handle Updating Poll
+const handleUpdatePoll = async () => {
+  await updatePoll(editPollData.value.id, {
+    title: editPollData.value.title,
+    options: editPollData.value.options,
+  });
+  showEditForm.value = false;
+  await fetchPolls(); // Refresh data
+};
+
+
+// ✅ Close Edit Modal
+const closeEditModal = () => {
+  showEditForm.value = false;
+};
+
+// ✅ Add & Remove Edit Options
+const addEditOption = () => editPollData.value.options.push("");
+const removeEditOption = (index) => editPollData.value.options.splice(index, 1);
 
 // On mount or when the form is toggled, fetch the polls
 onMounted(fetchPolls);

@@ -24,10 +24,17 @@ export const usePolls = () => {
     return await getPolls(); // ✅ Fetch updated polls after creation
   };
 
+
   const updatePoll = async (id, updatedPoll) => {
-    await updateDoc(doc($db, "polls", id), updatedPoll);
-    return await getPolls(); // ✅ Refresh poll list
+    try {
+      const pollRef = doc($db, "polls", id);
+      await updateDoc(pollRef, updatedPoll);
+      return await getPolls(); // Refresh polls after update
+    } catch (error) {
+      console.error("Error updating poll:", error);
+    }
   };
+  
 
   const deletePoll = async (id) => { // ✅ Fix function name to `deletePoll`
     await deleteDoc(doc($db, "polls", id));
@@ -63,6 +70,8 @@ export const usePolls = () => {
       return { error };
     }
   };
+
+  
 
   return { polls, getPolls, createPoll, updatePoll, deletePoll, voteOnPoll }; // ✅ Ensure correct function names
 };
