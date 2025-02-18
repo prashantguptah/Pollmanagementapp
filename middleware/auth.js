@@ -1,10 +1,8 @@
-// middleware/auth.js
-import firebase from '~/plugins/firebase';
+import { useAuthStore } from "~/store";
+export default defineNuxtRouteMiddleware((to, from) => {
+  const authStore = useAuthStore(); // Import the authentication store
 
-export default function ({ redirect }) {
-  const user = firebase.auth().currentUser;
-  if (!user) {
-    return redirect('/login');
-    console.log(middleware)
+  if (!authStore.user) {
+    return navigateTo('/login'); // Redirect to login if user is not authenticated
   }
-}
+});

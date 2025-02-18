@@ -1,28 +1,9 @@
-// // plugins/firebase.js
-// import { initializeApp } from 'firebase/app';
-// import { getAuth, onAuthStateChanged } from 'firebase/auth';
-// import firebaseConfig from '~/firebase.config';
-// import { useAuthStore } from '~/store';
 
-// // Initialize Firebase
-// const app = initializeApp(firebaseConfig);
-
-// // Initialize Firebase Auth
-// const auth = getAuth(app);
-
-// // Use Pinia store
-// const authStore = useAuthStore();
-
-// // Listen for auth state changes
-// onAuthStateChanged(auth, (user) => {
-//   authStore.setUser(user);  // Update the user in Pinia store
-// });
-
-// export { auth, app };
 
 import { defineNuxtPlugin } from "#app";
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB_Va8LZp6Mbm8x62Q-r3C9qtkXmX7iIt0",
@@ -37,5 +18,8 @@ const firebaseConfig = {
 export default defineNuxtPlugin((nuxtApp)=>{
     const app = initializeApp(firebaseConfig)
     const auth = getAuth(app)
+    const db = getFirestore(app)
     nuxtApp.provide('auth',auth)
+    nuxtApp.provide('db',db)
+    
 })

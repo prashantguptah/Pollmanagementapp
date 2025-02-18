@@ -37,16 +37,21 @@
   <script setup>
   import { ref } from 'vue';
   import { useAuth } from '~/composables/useAuth';
+  import { useAuthStore } from '~/store';
   
   const email = ref('');
   const password = ref('');
   const { login } = useAuth();
+  const authStore = useAuthStore();
   
   const handleLogin = async () => {
     try {
       await login(email.value, password.value);
       alert('Login successful');
+          authStore.setUser({ email: email.value });
+      navigateTo('/admin')
     } catch (error) {
+     
       alert(error.message);
     }
   };
