@@ -5,36 +5,56 @@
       :key="poll.id"
       class="flex flex-col  justify-between p-6 border border-gray-200 rounded-lg shadow-lg bg-white hover:shadow-xl transition-all duration-300"
     >
-
-
-
-
       <h3 class="text-xl font-semibold text-center mb-4">{{ poll.title }}</h3>
 
       <!-- Display poll options -->
-      <ul class="space-y-2 text-gray-700">
+      <!-- <ul class="space-y-2 text-gray-700">
         <li v-for="(option, index) in poll.options" :key="index" class="text-sm">
-          - {{ option }} 
+          - {{ option }}
+        </li>
+      </ul> -->
+      <ul class="space-y-2 text-gray-700">
+        <li v-for="(option, index) in poll.options" :key="index" class="text-sm flex justify-between items-center">
+          <span>- {{ option }}</span>
+
+          <button
+            v-if="!poll.votedUsers?.[userId]"
+            @click="handleVote(poll.id, option)"
+            class="py-1 px-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all text-xs"
+          >
+            Vote
+          </button>
         </li>
       </ul>
 
-      <!-- Button to vote -->
+      <!-- Button to vote
       <button class="mt-4 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
         Vote Now
-      </button>
+      </button> -->
     </li>
   </ul>
 </template>
 
 <script setup>
 import { usePolls } from "~/composables/usePolls";
+import { useAuthStore } from "~/store";
+import { ref, onMounted } from "vue";
 
-const { getPolls } = usePolls();
+const { getPolls, voteOnPoll } = usePolls();
+const authStore = useAuthStore()
+const userId = authStore.user?.uid
 const polls = ref([]);
 
 const fetchPolls = async () => {
   const fetchedPolls = await getPolls(); // ✅ Use `await`
   polls.value = fetchedPolls; // ✅ Ensure polls update properly
+};
+
+const handleVote = async (pollId, selectedOption) => {
+  const result = await voteOnPoll(pollId, userId, selectedOption);
+  if (result?.success || result?.alreadyVoted) {
+    await fetchPolls();
+  }
 };
 onMounted(fetchPolls);
 </script>

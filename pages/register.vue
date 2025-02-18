@@ -1,7 +1,7 @@
 <template>
-   <div class="flex justify-center items-center min-h-screen bg-gray-50">
-    <UCard class="w-full max-w-md p-6">
-      <h1 class="text-2xl font-semibold text-center text-primary mb-6">Signup</h1>
+  <div class="flex justify-center items-center min-h-screen bg-indigo-600">
+    <UCard class="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
+      <h1 class="text-2xl font-semibold text-center text-indigo-700 mb-6">Signup</h1>
       
       <UInput 
         v-model="email" 
@@ -30,13 +30,13 @@
 
       <p class="text-center text-gray-600 mt-4">
         Already have an account? 
-        <NuxtLink to="/login" class="text-primary font-medium hover:underline">
+        <NuxtLink to="/login" class="text-indigo-600 font-medium hover:underline">
           Login
         </NuxtLink>
       </p>
     </UCard>
   </div>
-  </template>
+</template>
 
 <script setup>
 import { ref } from "vue";

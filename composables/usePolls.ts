@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import { useNuxtApp } from "#app";
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from "firebase/firestore";
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs ,getDoc } from "firebase/firestore";
 
 export const usePolls = () => {
   const { $db } = useNuxtApp();
@@ -33,6 +33,36 @@ export const usePolls = () => {
     await deleteDoc(doc($db, "polls", id));
     return await getPolls(); // ✅ Fetch updated polls after deletion
   };
+   // Voting function
+   const voteOnPoll = async (pollId, userId, selectedOption) => {
+    const pollRef = doc($db, "polls", pollId);
 
-  return { polls, getPolls, createPoll, updatePoll, deletePoll }; // ✅ Ensure correct function names
+    try {
+      const pollSnapshot = await getDoc(pollRef);
+      if (!pollSnapshot.exists()) return console.error("Poll not found");
+
+      const pollData = pollSnapshot.data();
+      const votes = pollData.votes || {};
+      const votedUsers = pollData.votedUsers || {};
+
+      // If user has already voted, prevent re-voting
+      if (votedUsers[userId]) {
+        console.warn("User has already voted on this poll.");
+        return { alreadyVoted: true };
+      }
+
+      // Update votes count
+      votes[selectedOption] = (votes[selectedOption] || 0) + 1;
+      votedUsers[userId] = selectedOption;
+
+      await updateDoc(pollRef, { votes, votedUsers });
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error voting on poll:", error);
+      return { error };
+    }
+  };
+
+  return { polls, getPolls, createPoll, updatePoll, deletePoll, voteOnPoll }; // ✅ Ensure correct function names
 };
