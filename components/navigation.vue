@@ -10,10 +10,10 @@ const router = useRouter();
 
 const authStore = useAuthStore();
 const handleSignOut = async () => {
-  alert("Signout")
-  await logout();
-  authStore.setUser(null); 
-  router.push("/"); 
+ console.log("logout")
+  await authStore.logout();
+
+
 };
 
 
@@ -21,7 +21,7 @@ const isAuthenticated = computed(() => authStore.isAuthenticated);
 const isAdmin = computed(() => authStore.user?.email === "test@test.com");
 </script>
 <template>
-  <UContainer class="py-4 flex justify-center">
+  <UContainer class="py-4 flex justify-center" >
     <div class="flex space-x-10 justify-center">
       
       <router-link to="/" class="text-lg text-gray-700 hover:text-blue-500 transition-all">
@@ -38,9 +38,9 @@ const isAdmin = computed(() => authStore.user?.email === "test@test.com");
       </router-link>
 
     
-      <router-link  v-if="isAuthenticated" @click="handleSignOut" to="/" class="text-lg text-gray-700 hover:text-blue-500 transition-all">
+      <button  v-if="isAuthenticated" @click="handleSignOut"  class="text-lg text-gray-700 hover:text-blue-500 transition-all">
         Sign out
-      </router-link>
+      </button>
 
       
       <router-link v-if="!isAdmin" to="/polls" class="text-lg text-gray-700 hover:text-blue-500 transition-all">
@@ -48,7 +48,7 @@ const isAdmin = computed(() => authStore.user?.email === "test@test.com");
       </router-link>
 
       <router-link v-if="isAdmin" to="/admin" class="text-lg text-gray-700 hover:text-blue-500 transition-all">
-        Admin
+        Polls
       </router-link>
     </div>
   </UContainer>

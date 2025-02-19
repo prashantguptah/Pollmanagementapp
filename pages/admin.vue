@@ -2,7 +2,7 @@
   <div class="admin-dashboard">
     <h2 class="text-3xl font-semibold mb-4">Admin Dashboard</h2>
 
-   
+
     <div v-if="isAdmin">
       <button
         @click="showPollForm = true"
