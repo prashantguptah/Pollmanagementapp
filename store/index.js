@@ -7,7 +7,8 @@ import { navigateTo } from '#app';
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
-    isAuthInitialized: false
+    isAuthInitialized: false,
+    isAdmin: false
   }),
 
   actions: {
@@ -20,6 +21,7 @@ export const useAuthStore = defineStore('auth', {
       } else {
         this.user = null;
       }
+      this.isAdmin = user?.email ==="test@test.com"
       console.log( "User updated:",this.user)
     },
 

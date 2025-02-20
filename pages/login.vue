@@ -1,30 +1,42 @@
 <template>
   <div class="flex justify-center items-center min-h-screen bg-indigo-600">
-    <div class="p-8 bg-white rounded-lg shadow-lg w-full max-w-sm">
-      <h1 class="text-2xl font-semibold text-center text-indigo-700 mb-6">
+    <UContainer class="p-8 bg-white rounded-lg shadow-lg w-full max-w-sm">
+      <h1 class="text-2xl font-semibold text-center text-primary mb-6">
         Login
       </h1>
 
-      <UInput v-model="email" type="email" placeholder="Email" class="mb-4" />
+      <UFormGroup label="Enter email"  name="email" required>
+        <UInput
+          v-model="email"
+          type="email"
+          placeholder="Email"
+          size="lg"
+          class="mb-4 mt-2"
+          
+        />
+      </UFormGroup>
 
-      <UInput
-        v-model="password"
-        type="password"
-        placeholder="Password"
-        class="mb-6"
-      />
-
-      <UButton @click="handleLogin" color="primary" class="w-full mb-4">
+      <UFormGroup label="Enter password" name="password" required>
+        <UInput
+          v-model="password"
+          type="password"
+          placeholder="Password"
+          size="lg"
+          class="mb-6 mt-2"
+          
+        />
+      </UFormGroup>
+      <UButton @click="handleLogin" color="primary" block class="mb-4">
         Login
       </UButton>
 
-      <p class="text-center text-gray-600">
+      <p class="text-center text-muted">
         Don't have an account?
-        <NuxtLink to="/register" class="text-indigo-600 hover:underline">
+        <NuxtLink to="/register" class="text-primary hover:underline">
           Sign up
         </NuxtLink>
       </p>
-    </div>
+    </UContainer>
   </div>
 </template>
 
@@ -39,23 +51,6 @@ const password = ref("");
 const { login } = useAuth();
 const authStore = useAuthStore();
 
-
-// definePageMeta({
-//   middleware: async (to, from) => {
-//     const authStore = useAuthStore();
-
-//     console.log("[Login Page] Running middleware...");
-
-//     await authStore.initAuth();
-
-//     console.log("[Login Page] User State:", authStore.user ? authStore.user.uid : "No user");
-
-//     if (authStore.user !== null) {
-//       console.log("Hello ...")
-//       return navigateTo("/");
-//     }
-//   },
-// });
 definePageMeta({
   middleware: "guest",
 });
@@ -66,10 +61,15 @@ const handleLogin = async () => {
 
     authStore.setUser({
       email: email.value,
-      uid: userCredential.user.uid, 
+      uid: userCredential.user.uid,
     });
     alert("Login successful");
-    navigateTo("/");
+
+    if (authStore.isAdmin) {
+      navigateTo("/admin");
+    } else {
+      navigateTo("/polls");
+    }
   } catch (error) {
     alert(error.message);
   }

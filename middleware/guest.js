@@ -1,15 +1,15 @@
 import { useAuthStore } from "~/store";
-export default defineNuxtRouteMiddleware((to, from) => {
-  const authStore = useAuthStore(); 
-
+export default defineNuxtRouteMiddleware(async () => {
+    const authStore = useAuthStore();
   
-
-  if (authStore.value && to.path === '/login') {
-    console.log("this is guest middleware")
-    return navigateTo('/');
- 
-  }
-
-});
-
-
+    console.log("[Login Page] Running middleware...");
+    await authStore.initAuth();
+  
+    console.log("[Login Page] User State:", authStore.user ? authStore.user.uid : "No user");
+  
+    if (authStore.user !== null) {
+      console.log("Redirecting to home...");
+      return navigateTo("/");
+    }
+  });
+  

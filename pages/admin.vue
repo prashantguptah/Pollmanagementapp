@@ -2,176 +2,168 @@
   <div class="admin-dashboard">
     <h2 class="text-3xl font-semibold mb-4">Admin Dashboard</h2>
 
-
-    <div v-if="isAdmin">
-      <button
-        @click="showPollForm = true"
-        class="mb-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-      >
+    <div>
+      <!-- Create Poll Button -->
+      <UButton @click="showPollForm = true" color="blue" size="lg">
         Create Poll
-      </button>
-
-
-
-
-      <!-- Poll creation form -->
+      </UButton>
       <div
-      v-if="showPollForm"
-      class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-      @click="closeModal"
-    >
-      <div
-        class="poll-form p-6 bg-white w-[400px] rounded-lg shadow-md mb-6 relative"
-        @click.stop
+        v-if="loading"
+        class="flex justify-center items-center min-h-[200px]"
       >
-        <button
-          @click="closeModal"
-          class="absolute top-2 right-2 text-gray-500 hover:text-black text-2xl"
-        >
-          &#10005; 
-        </button>
-        <h3 class="text-xl font-semibold mb-4">Create a Poll</h3>
-        <input
-          v-model="pollTitle"
-          placeholder="Poll Title"
-          class="mb-4 p-2 w-full border border-gray-300 rounded-md"
-        />
-
-        <div v-for="(option, index) in pollOptions" :key="index" class="flex mb-2">
-          <input
-            v-model="pollOptions[index]"
-            placeholder="Option"
-            class="p-2 w-full border border-gray-300 rounded-md mr-2"
-          />
-          <button @click="removeOption(index)" class="text-red-500">X</button>
-        </div>
-
-        <button
-          @click="addOption"
-          class="mb-4 text-white bg-green-600 px-4 py-2 rounded-md hover:bg-green-700"
-        >
-          Add Option
-        </button>
-
-        <div class="flex justify-between">
-          <button
-            @click="handleCreatePoll"
-            class="text-white bg-blue-600 px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            Save Poll
-          </button>
-          <button
-            @click="closeModal"
-            class="text-white bg-gray-600 px-4 py-2 rounded-md hover:bg-gray-700"
-          >
-            Cancel
-          </button>
-        </div>
+        <USkeleton class="w-16 h-1 bg-blue-500 animate-spin origin-center" />
       </div>
-    </div>
 
+      <!-- Poll Creation Modal -->
+      <UModal v-model="showPollForm">
+        <UCard class="w-full">
+          <template #header>
+            <h3 class="text-xl font-semibold">Create a Poll</h3>
+          </template>
 
+          <UInput
+            v-model="pollTitle"
+            placeholder="Poll Title"
+            size="lg"
+            class="mb-4"
+          />
 
+          <div
+            v-for="(option, index) in pollOptions"
+            :key="index"
+            class="flex mb-2"
+          >
+            <UInput
+              v-model="pollOptions[index]"
+              placeholder="Option"
+              size="lg"
+              class="mr-2"
+              @focus="addOptionIfNeeded(index)"
+             
+            />
+            <UButton variant="link" color="red" @click="removeOption(index)"
+              >X</UButton
+            >
+          </div>
 
-       <!-- Edit Poll Modal -->
-<div
-  v-if="showEditForm"
-  class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-  @click="closeEditModal"
->
-  <div class="p-6 bg-white w-[400px] rounded-lg shadow-md relative" @click.stop>
-    <button @click="closeEditModal" class="absolute top-2 right-2 text-gray-500 hover:text-black text-2xl">
-      &#10005;
-    </button>
-    <h3 class="text-xl font-semibold mb-4">Edit Poll</h3>
-    <input v-model="editPollData.title" placeholder="Poll Title" class="mb-4 p-2 w-full border border-gray-300 rounded-md" />
+          <UButton @click="addOption" color="green" block class="mb-4">
+            Add Option
+          </UButton>
 
-    <div v-for="(option, index) in editPollData.options" :key="index" class="flex mb-2">
-      <input v-model="editPollData.options[index]" placeholder="Option" class="p-2 w-full border border-gray-300 rounded-md mr-2" />
-      <button @click="removeEditOption(index)" class="text-red-500">X</button>
-    </div>
+          <div class="flex justify-between"> 
+            <UButton @click="handleCreatePoll" color="blue">Save Poll</UButton>
+            <UButton @click="closeModal" color="gray">Cancel</UButton>
+          </div>
+        </UCard>
+      </UModal>
 
-    <button @click="addEditOption" class="mb-4 text-white bg-green-600 px-4 py-2 rounded-md hover:bg-green-700">
-      Add Option
-    </button>
+      <!-- Edit Poll Modal -->
+      <UModal v-model="showEditForm">
+        <UCard class="w-full">
+          <template #header>
+            <h3 class="text-xl font-semibold">Edit Poll</h3>
+          </template>
 
-    <div class="flex justify-between">
-      <button @click="handleUpdatePoll" class="text-white bg-blue-600 px-4 py-2 rounded-md hover:bg-blue-700">
-        Save Changes
-      </button>
-      <button @click="closeEditModal" class="text-white bg-gray-600 px-4 py-2 rounded-md hover:bg-gray-700">
-        Cancel
-      </button>
-    </div>
-  </div>
-</div>
+          <UInput
+            v-model="editPollData.title"
+            placeholder="Poll Title"
+            size="lg"
+            class="mb-4"
+          />
 
+          <div
+            v-for="(option, index) in editPollData.options"
+            :key="index"
+            class="flex mb-2"
+          >
+            <UInput
+              v-model="editPollData.options[index]"
+              placeholder="Option"
+              size="lg"
+              class="mr-2"
+            />
+            <UButton variant="link" color="red" @click="removeEditOption(index)"
+              >X</UButton
+            >
+          </div>
 
+          <UButton @click="addEditOption" color="green" block class="mb-4">
+            Add Option
+          </UButton>
 
-
-
-
-
-
+          <div class="flex justify-between">
+            <UButton @click="handleUpdatePoll" color="blue"
+              >Save Changes</UButton
+            >
+            <UButton @click="closeEditModal" color="gray">Cancel</UButton>
+          </div>
+        </UCard>
+      </UModal>
 
       <!-- Poll List -->
-      <ul
-        class="poll-list mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 w-[800px]"
-      >
-        <li
-          v-for="poll in polls"
-          :key="poll.id"
-          class="flex flex-col p-6 border border-gray-200 rounded-lg shadow-lg bg-white hover:shadow-xl transition-all duration-300"
+      <UContainer>
+        <div
+          class="grid sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-5"
         >
-          <h3 class="text-xl font-semibold text-center mb-4">
-            {{ poll.title }}
-          </h3>
+          <UCard v-for="poll in polls" :key="poll.id" >
+            <template #header>
+              <h3 class="text-xl font-semibold !text-center">
+                {{ poll.title }}
+              </h3>
+            </template>
 
-        
-          <ul class="space-y-2 text-gray-700">
-            <li
-              v-for="(option, index) in poll.options"
-              :key="index"
-              class="text-sm"
-            >
-               <span> - {{ option }}</span>
-               <span class="text-xs font-bold text-gray-500">{{ poll.votes?.[option] || 0 }} votes</span>
-            </li>
-          </ul>
+            <ul class="space-y-2 text-muted">
+              <li
+                v-for="(option, index) in poll.options"
+                :key="index"
+                class="text-sm flex justify-between"
+              >
+                <span> - {{ option }}</span>
+                <span class="text-xs font-bold"
+                  >{{ poll.votes?.[option] || 0 }} votes</span
+                >
+              </li>
+            </ul>
 
-          <div class="mt-4 flex justify-between  items-center">
-            <button
-              @click="editPoll(poll)"
-              class="text-yellow-500 hover:underline text-sm"
-            >
-              Edit
-            </button>
-            <button
-              @click="deletePollHandler(poll.id)"
-              class="text-red-500 hover:underline text-sm"
-            >
-              Delete Poll
-            </button>
-          </div>
-        </li>
-      </ul>
-    </div>
+            <template #footer>
+              <div class="flex justify-between items-center">
+                <UButton
+                  @click="editPoll(poll)"
+                  size="sm"
+                  color="blue"
+                  :ui="{
+                    base: 'bg-indigo-600 text-white px-4 py-2 rounded-md border border-indigo-700 hover:bg-indigo-700 hover:text-black',
+                  }"
+                >
+                  Edit
+                </UButton>
 
-
-    <div v-else>
-      <p>You are not an admin.</p>
+                <UButton
+                  @click="deletePollHandler(poll.id)"
+                  size="sm"
+                  color="red"
+                  :ui="{
+                    base: 'bg-red-600 text-white px-4 py-2 rounded-md border border-red-700 hover:bg-red-700 hover:text-black',
+                  }"
+                >
+                  Delete Poll
+                </UButton>
+              </div>
+            </template>
+          </UCard>
+        </div>
+      </UContainer>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref,computed, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { usePolls } from "~/composables/usePolls";
 import { useAuthStore } from "~/store";
 
 const { createPoll, getPolls, deletePoll, updatePoll } = usePolls();
 const authStore = useAuthStore();
-
 
 const pollTitle = ref("");
 const pollOptions = ref([""]);
@@ -179,40 +171,62 @@ const showPollForm = ref(false);
 
 const polls = ref([]);
 const isAdmin = computed(() => authStore.user?.email === "test@test.com");
+const loading = ref(true);
 
 definePageMeta({
-  middleware: "auth",
+  middleware: "adminm",
 });
 
-const addOption = () => pollOptions.value.push("");
+const addOption = () =>{
+  if (pollOptions.value.length < 4 ) {
+    return pollOptions.value.push("");
+  }
+}
 const removeOption = (index) => pollOptions.value.splice(index, 1);
-
-const handleCreatePoll = async () => {
-  const pollData = { title: pollTitle.value, options: pollOptions.value };
-  await createPoll(pollData);
-  pollTitle.value = "";
-  pollOptions.value = [""];
-  await fetchPolls(); 
+const addOptionIfNeeded = (index) => {
+  if (pollOptions.value.length < 4 && index === pollOptions.value.length - 1) {
+    pollOptions.value.push("");
+  }
 };
 
+const handleCreatePoll = async () => {
+  // Remove empty options
+  const filteredOptions = pollOptions.value.filter(option => option.trim() !== "");
+
+  // Ensure at least two valid options
+  if (!pollTitle.value.trim()) {
+    alert("Poll title cannot be empty.");
+    return;
+  }
+  if (filteredOptions.length < 2) {
+    alert("Poll must have at least two options.");
+    return;
+  }
+
+  const pollData = { title: pollTitle.value, options: filteredOptions };
+  await createPoll(pollData);
+
+  // Reset form
+  pollTitle.value = "";
+  pollOptions.value = [""];
+
+  await fetchPolls();
+};
+
+
 const fetchPolls = async () => {
-  const fetchedPolls = await getPolls(); 
-  polls.value = fetchedPolls; 
+  const fetchedPolls = await getPolls();
+  polls.value = fetchedPolls;
+  loading.value = false;
 };
 
 const deletePollHandler = async (id) => {
   await deletePoll(id);
-  await fetchPolls(); 
+  await fetchPolls();
 };
 const closeModal = () => {
   showPollForm.value = false;
 };
-
-
-
-
-
-
 
 // for edit modal
 const showEditForm = ref(false);
@@ -220,7 +234,7 @@ const editPollData = ref({ id: "", title: "", options: [] });
 
 //  Open Edit Modal
 const editPoll = (poll) => {
-  editPollData.value = { ...poll }; 
+  editPollData.value = { ...poll };
   showEditForm.value = true;
 };
 
@@ -234,7 +248,6 @@ const handleUpdatePoll = async () => {
   await fetchPolls();
 };
 
-
 //  Close Edit Modal
 const closeEditModal = () => {
   showEditForm.value = false;
@@ -242,8 +255,8 @@ const closeEditModal = () => {
 
 //  Add & Remove Edit Options
 const addEditOption = () => editPollData.value.options.push("");
-const removeEditOption = (index) => editPollData.value.options.splice(index, 1);
 
+const removeEditOption = (index) => editPollData.value.options.splice(index, 1);
 
 onMounted(fetchPolls);
 </script>
