@@ -38,7 +38,7 @@
               placeholder="Option"
               size="lg"
               class="mr-2"
-              @focus="addOptionIfNeeded(index)"
+              @keydown.enter.prevent="addOptionIfRequire(index)"
              
             />
             <UButton variant="link" color="red" @click="removeOption(index)"
@@ -57,7 +57,7 @@
         </UCard>
       </UModal>
 
-      <!-- Edit Poll Modal -->
+      <!-- Edit Poll Modal                -->
       <UModal v-model="showEditForm">
         <UCard class="w-full">
           <template #header>
@@ -81,6 +81,7 @@
               placeholder="Option"
               size="lg"
               class="mr-2"
+             @keydown.enter.prevent="addOptionIfRequire(index)"
             />
             <UButton variant="link" color="red" @click="removeEditOption(index)"
               >X</UButton
@@ -103,7 +104,7 @@
       <!-- Poll List -->
       <UContainer>
         <div
-          class="grid sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-5"
+          class="grid sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-5xl mx-auto mt-5"
         >
           <UCard v-for="poll in polls" :key="poll.id" >
             <template #header>
@@ -183,17 +184,17 @@ const addOption = () =>{
   }
 }
 const removeOption = (index) => pollOptions.value.splice(index, 1);
-const addOptionIfNeeded = (index) => {
+const addOptionIfRequire = (index) => {
   if (pollOptions.value.length < 4 && index === pollOptions.value.length - 1) {
     pollOptions.value.push("");
   }
 };
 
 const handleCreatePoll = async () => {
-  // Remove empty options
+
   const filteredOptions = pollOptions.value.filter(option => option.trim() !== "");
 
-  // Ensure at least two valid options
+
   if (!pollTitle.value.trim()) {
     alert("Poll title cannot be empty.");
     return;
@@ -206,7 +207,7 @@ const handleCreatePoll = async () => {
   const pollData = { title: pollTitle.value, options: filteredOptions };
   await createPoll(pollData);
 
-  // Reset form
+
   pollTitle.value = "";
   pollOptions.value = [""];
 
@@ -228,32 +229,57 @@ const closeModal = () => {
   showPollForm.value = false;
 };
 
+
 // for edit modal
 const showEditForm = ref(false);
 const editPollData = ref({ id: "", title: "", options: [] });
 
-//  Open Edit Modal
+
+
+
+const originalPollData = ref({ id: "", title: "", options: [] });
+
+
+// using JSON functions due to vue's reactivity, to make deep copy of data
 const editPoll = (poll) => {
-  editPollData.value = { ...poll };
+  originalPollData.value = JSON.parse(JSON.stringify(poll)); 
+  editPollData.value = JSON.parse(JSON.stringify(poll));
   showEditForm.value = true;
 };
 
-// Handle Updating Poll
+// handling update button and also filtering blank option
+
 const handleUpdatePoll = async () => {
+  
+  const filteredOptions = editPollData.value.options.map(option => option.trim()).filter(option => option !== "");
+
+
+  if (!editPollData.value.title.trim()) {
+    alert("Poll title cannot be empty!");
+    return;
+  }
+  if (filteredOptions.length < 2) {
+    alert("Poll must have at least two valid options!");
+    return;
+  }
+
   await updatePoll(editPollData.value.id, {
-    title: editPollData.value.title,
-    options: editPollData.value.options,
+    title: editPollData.value.title.trim(),
+    options: filteredOptions,
   });
+
   showEditForm.value = false;
   await fetchPolls();
 };
 
+
 //  Close Edit Modal
 const closeEditModal = () => {
+  editPollData.value = JSON.parse(JSON.stringify(originalPollData.value));
   showEditForm.value = false;
 };
 
-//  Add & Remove Edit Options
+
 const addEditOption = () => editPollData.value.options.push("");
 
 const removeEditOption = (index) => editPollData.value.options.splice(index, 1);
@@ -263,9 +289,9 @@ onMounted(fetchPolls);
 
 <style scoped>
 .admin-dashboard {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 20px;
+
 }
 
 .poll-form input {

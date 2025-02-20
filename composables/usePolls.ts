@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import { useNuxtApp } from "#app";
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs ,getDoc } from "firebase/firestore";
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs ,getDoc, onSnapshot } from "firebase/firestore";
 
 export const usePolls = () => {
   const { $db } = useNuxtApp();
@@ -103,3 +103,32 @@ export const usePolls = () => {
 
   return { polls, getPolls, createPoll, updatePoll, deletePoll, voteOnPoll , getPollsOptions}; 
 };
+
+
+// for realtime Polls retriveal
+
+// let unsubscribe = null
+
+
+// const getPolls = async () => {
+//   if(unsubscribe) unsubscribe();
+//   try {
+//     const pollsCollection = collection($db, "polls");
+    
+//     unsubscribe = onSnapshot(pollsCollection, (snapshot) => {
+//       console.log("Snapshot received:", snapshot.docs.length);
+//       const fetchedPolls = snapshot.docs.map((doc) => ({
+//         id: doc.id,
+//         ...doc.data(),
+//       }));
+//       console.log("Fetched Polls:", fetchedPolls);
+//       polls.value = fetchedPolls;
+//     });
+    
+//   } catch (error) {
+//     console.error("Error fetching polls:", error);
+//   }
+// };
+// onUnmounted(() => {
+//   if (unsubscribe) unsubscribe();
+// });
