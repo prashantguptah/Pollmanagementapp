@@ -39,7 +39,8 @@ export const useAuthStore = defineStore('auth', {
         onAuthStateChanged(auth, (user) => {
           this.setUser(user);
           this.isAuthInitialized = true;
-          console.log("Auth state updated:", user ? user.uid : "No user"); // Debugging log
+          
+          console.log("Auth state updated:", user ? user.uid : "No user"); 
           resolve(user);
         });
       });

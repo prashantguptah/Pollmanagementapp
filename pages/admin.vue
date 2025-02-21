@@ -37,12 +37,12 @@
               v-model="pollOptions[index]"
               placeholder="Option"
               size="lg"
-              class="mr-2 poll-option-input"
+              class="mr-2 poll-option-input w-80"
               :ref="(el) => (pollOptionInputs[index] = el)"
               @keydown.enter.prevent="addOptionIfRequire(index, false)"
             />
             <UButton variant="link" color="red" @click="removeOption(index)"
-              >X</UButton
+              >   <UIcon name="i-heroicons-trash" class="w-6 h-6 text-red-500" /></UButton
             >
           </div>
 
@@ -51,7 +51,8 @@
           </UButton>
 
           <div class="flex justify-between">
-            <UButton @click="handleCreatePoll" color="blue">Save Poll</UButton>
+            <UButton @click="handleCreatePoll" color="blue" :loading="isSaving">
+              Save Poll</UButton>
             <UButton @click="closeModal" color="gray">Cancel</UButton>
           </div>
         </UCard>
@@ -80,12 +81,12 @@
               v-model="editPollData.options[index]"
               placeholder="Option"
               size="lg"
-              class="mr-2 poll-option-input"
+              class="mr-2 poll-option-input w-80"
               :ref="(el) => (pollOptionInputs[index] = el)"
               @keydown.enter.prevent="addOptionIfRequire(index, true)"
             />
             <UButton variant="link" color="red" @click="removeEditOption(index)"
-              >X</UButton
+              ><UIcon name="i-heroicons-trash" class="w-6 h-6 text-red-500" /></UButton
             >
           </div>
 
@@ -95,7 +96,7 @@
 
           <div class="flex justify-between">
             <UButton @click="handleUpdatePoll" color="blue"
-              >Save Changes</UButton
+            :loading="isSaving" >Save Changes</UButton
             >
             <UButton @click="closeEditModal" color="gray">Cancel</UButton>
           </div>
@@ -218,6 +219,8 @@ const addOptionIfRequire = async (index, isEdit = false) => {
 
 // main handler for creating Polls
 
+const isSaving = ref(false);
+
 const handleCreatePoll = async () => {
   const filteredOptions = pollOptions.value.filter(
     (option) => option.trim() !== ""
@@ -232,13 +235,21 @@ const handleCreatePoll = async () => {
     return;
   }
 
-  const pollData = { title: pollTitle.value, options: filteredOptions };
-  await createPoll(pollData);
+isSaving.value = true;
+ 
 
-  pollTitle.value = "";
-  pollOptions.value = [""];
+  try {
+    const pollData = { title: pollTitle.value, options: filteredOptions };
+    await createPoll(pollData);
 
-  await fetchPolls();
+    pollTitle.value = "";
+    pollOptions.value = [""];
+    await fetchPolls();
+  } catch (error) {
+    console.error("Error creating poll:", error);
+  } finally {
+    isSaving.value = false; 
+  }
 };
 
 
@@ -275,6 +286,7 @@ const editPoll = (poll) => {
 
 // handling update button and also filtering blank option
 
+
 const handleUpdatePoll = async () => {
   const filteredOptions = editPollData.value.options
     .map((option) => option.trim())
@@ -289,10 +301,18 @@ const handleUpdatePoll = async () => {
     return;
   }
 
-  await updatePoll(editPollData.value.id, {
+  isSaving.value = true;
+   try{
+    await updatePoll(editPollData.value.id, {
     title: editPollData.value.title.trim(),
     options: filteredOptions,
   });
+   }catch(error){
+    console.log("Error creating poll:", error)
+   }finally{
+    isSaving.value = false
+   }
+
 
   showEditForm.value = false;
   await fetchPolls();

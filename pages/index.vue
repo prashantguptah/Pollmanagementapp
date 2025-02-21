@@ -1,12 +1,12 @@
 <template>
   <div>
-    <!-- Welcome Section -->
+    
     <UContainer class="text-center py-12 bg-blue-500 text-white">
       <h1 class="text-4xl font-bold mb-4">Welcome to the Poll Management App</h1>
       <p class="text-xl mb-8">Create, vote, and manage polls easily. Whether you're an admin or a user, you'll find it simple to interact with polls.</p>
     </UContainer>
 
-    <!-- Features Section -->
+   
     <UContainer class="py-12">
       <h2 class="text-3xl font-semibold text-center mb-6">Features</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -19,7 +19,7 @@
       </div>
     </UContainer>
 
-    <!-- How It Works Section -->
+   
     <UContainer class="bg-gray-100 py-12 text-center">
       <h2 class="text-3xl font-semibold mb-6">How It Works</h2>
       <p class="text-lg mb-8">Learn how to create and participate in polls with ease.</p>
@@ -33,7 +33,7 @@
       </div>
     </UContainer>
 
-    <!-- Call to Action -->
+  
     <UContainer class="text-center py-12 bg-blue-500 text-white">
       <h2 class="text-3xl font-semibold mb-4">Ready to Get Started?</h2>
       <p class="text-lg mb-8">Walk around to create or participate in polls.</p>

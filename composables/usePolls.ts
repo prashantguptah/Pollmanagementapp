@@ -7,7 +7,7 @@ export const usePolls = () => {
   const polls = ref([]);
   const selectedOptions = ref({});
 
-
+// to get the polls
   const getPolls = async () => {
     try {
       const snapshot = await getDocs(collection($db, "polls"));
@@ -41,12 +41,15 @@ export const usePolls = () => {
       return [];
     }
   };
+
+
+  // To create the Polls
   const createPoll = async (poll) => {
     await addDoc(collection($db, "polls"), poll);
     return await getPolls(); 
   };
 
-
+// To update the Polls
   const updatePoll = async (id, updatedPoll) => {
     try {
       const pollRef = doc($db, "polls", id);
@@ -57,7 +60,7 @@ export const usePolls = () => {
     }
   };
   
-
+// to delete the polls
   const deletePoll = async (id) => { 
     await deleteDoc(doc($db, "polls", id));
     return await getPolls(); 
@@ -80,7 +83,8 @@ export const usePolls = () => {
       if (votedUsers[userId]) {
         const previousVote = votedUsers[userId];
         if (previousVote !== selectedOption) {
-          votes[previousVote] = (votes[previousVote] || 1) - 1; // Reduce old vote count
+
+          votes[previousVote] = (votes[previousVote] || 1) - 1; 
         }
       }
 
