@@ -25,7 +25,7 @@
             v-model="pollTitle"
             placeholder="Poll Title"
             size="lg"
-            class="mb-4"
+            class="mb-4 newinput"
           />
 
           <div
@@ -37,9 +37,9 @@
               v-model="pollOptions[index]"
               placeholder="Option"
               size="lg"
-              class="mr-2"
-              @keydown.enter.prevent="addOptionIfRequire(index)"
-             
+              class="mr-2 poll-option-input"
+              :ref="(el) => (pollOptionInputs[index] = el)"
+              @keydown.enter.prevent="addOptionIfRequire(index, false)"
             />
             <UButton variant="link" color="red" @click="removeOption(index)"
               >X</UButton
@@ -50,7 +50,7 @@
             Add Option
           </UButton>
 
-          <div class="flex justify-between"> 
+          <div class="flex justify-between">
             <UButton @click="handleCreatePoll" color="blue">Save Poll</UButton>
             <UButton @click="closeModal" color="gray">Cancel</UButton>
           </div>
@@ -80,8 +80,9 @@
               v-model="editPollData.options[index]"
               placeholder="Option"
               size="lg"
-              class="mr-2"
-             @keydown.enter.prevent="addOptionIfRequire(index)"
+              class="mr-2 poll-option-input"
+              :ref="(el) => (pollOptionInputs[index] = el)"
+              @keydown.enter.prevent="addOptionIfRequire(index, true)"
             />
             <UButton variant="link" color="red" @click="removeEditOption(index)"
               >X</UButton
@@ -106,7 +107,7 @@
         <div
           class="grid sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-5xl mx-auto mt-5"
         >
-          <UCard v-for="poll in polls" :key="poll.id" >
+          <UCard v-for="poll in polls" :key="poll.id">
             <template #header>
               <h3 class="text-xl font-semibold !text-center">
                 {{ poll.title }}
@@ -162,6 +163,7 @@
 import { ref, computed, onMounted } from "vue";
 import { usePolls } from "~/composables/usePolls";
 import { useAuthStore } from "~/store";
+import { nextTick } from "vue";
 
 const { createPoll, getPolls, deletePoll, updatePoll } = usePolls();
 const authStore = useAuthStore();
@@ -178,22 +180,48 @@ definePageMeta({
   middleware: "adminm",
 });
 
-const addOption = () =>{
-  if (pollOptions.value.length < 4 ) {
-    return pollOptions.value.push("");
-  }
-}
-const removeOption = (index) => pollOptions.value.splice(index, 1);
-const addOptionIfRequire = (index) => {
-  if (pollOptions.value.length < 4 && index === pollOptions.value.length - 1) {
-    pollOptions.value.push("");
+
+
+
+// create option and also manage focus
+const addOption = async () => {
+  pollOptions.value.push("");
+  await nextTick();
+
+  const inputs = document.querySelectorAll(".poll-option-input input");
+  if (inputs.length > 0) {
+    inputs[inputs.length - 1].focus();
   }
 };
 
+const removeOption = (index) => pollOptions.value.splice(index, 1);
+
+
+// create and change option when click on enter
+const pollOptionInputs = ref([]);
+const addOptionIfRequire = async (index, isEdit = false) => {
+  const optionsList = isEdit ? editPollData.value.options : pollOptions.value;
+  const inputsList = pollOptionInputs.value;
+
+  if (index === optionsList.length - 1) {
+    optionsList.push("");
+    await nextTick();
+
+    const nextInput = inputsList[index + 1]?.$el?.querySelector("input");
+    if (nextInput) {
+      nextInput.focus();
+    }
+  }
+};
+
+
+
+// main handler for creating Polls
+
 const handleCreatePoll = async () => {
-
-  const filteredOptions = pollOptions.value.filter(option => option.trim() !== "");
-
+  const filteredOptions = pollOptions.value.filter(
+    (option) => option.trim() !== ""
+  );
 
   if (!pollTitle.value.trim()) {
     alert("Poll title cannot be empty.");
@@ -207,7 +235,6 @@ const handleCreatePoll = async () => {
   const pollData = { title: pollTitle.value, options: filteredOptions };
   await createPoll(pollData);
 
-
   pollTitle.value = "";
   pollOptions.value = [""];
 
@@ -215,11 +242,13 @@ const handleCreatePoll = async () => {
 };
 
 
+//  for fetching the poll/s
 const fetchPolls = async () => {
   const fetchedPolls = await getPolls();
   polls.value = fetchedPolls;
   loading.value = false;
 };
+
 
 const deletePollHandler = async (id) => {
   await deletePoll(id);
@@ -229,30 +258,27 @@ const closeModal = () => {
   showPollForm.value = false;
 };
 
-
 // for edit modal
 const showEditForm = ref(false);
 const editPollData = ref({ id: "", title: "", options: [] });
 
-
-
-
 const originalPollData = ref({ id: "", title: "", options: [] });
-
 
 // using JSON functions due to vue's reactivity, to make deep copy of data
 const editPoll = (poll) => {
-  originalPollData.value = JSON.parse(JSON.stringify(poll)); 
+  originalPollData.value = JSON.parse(JSON.stringify(poll));
   editPollData.value = JSON.parse(JSON.stringify(poll));
   showEditForm.value = true;
 };
 
+
+
 // handling update button and also filtering blank option
 
 const handleUpdatePoll = async () => {
-  
-  const filteredOptions = editPollData.value.options.map(option => option.trim()).filter(option => option !== "");
-
+  const filteredOptions = editPollData.value.options
+    .map((option) => option.trim())
+    .filter((option) => option !== "");
 
   if (!editPollData.value.title.trim()) {
     alert("Poll title cannot be empty!");
@@ -272,7 +298,6 @@ const handleUpdatePoll = async () => {
   await fetchPolls();
 };
 
-
 //  Close Edit Modal
 const closeEditModal = () => {
   editPollData.value = JSON.parse(JSON.stringify(originalPollData.value));
@@ -280,7 +305,20 @@ const closeEditModal = () => {
 };
 
 
-const addEditOption = () => editPollData.value.options.push("");
+
+// adding edit Poll options and changing focus
+const addEditOption = async () => {
+  editPollData.value.options.push("");
+  await nextTick();
+
+  const nextInput =
+    pollOptionInputs.value[
+      editPollData.value.options.length - 1
+    ]?.$el?.querySelector("input");
+  if (nextInput) {
+    nextInput.focus();
+  }
+};
 
 const removeEditOption = (index) => editPollData.value.options.splice(index, 1);
 
@@ -291,7 +329,6 @@ onMounted(fetchPolls);
 .admin-dashboard {
   max-width: 900px;
   margin: 0 auto;
-
 }
 
 .poll-form input {
