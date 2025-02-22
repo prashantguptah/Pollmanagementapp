@@ -12,6 +12,7 @@
   </UContainer> -->
   <NuxtLayout>
     <NuxtPage />
+    <UNotifications />
   </NuxtLayout>
 
 </template>

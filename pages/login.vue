@@ -1,7 +1,7 @@
 <template>
-  <div class="flex justify-center items-center min-h-screen bg-indigo-600">
+  <div class="flex justify-center items-center min-h-screen bg-blue-500">
     <UContainer class="p-8 bg-white rounded-lg shadow-lg w-full max-w-sm">
-      <h1 class="text-2xl font-semibold text-center text-primary mb-6">
+      <h1 class="text-2xl font-semibold text-center text-blue-500 mb-6">
         Login
       </h1>
 
@@ -26,13 +26,13 @@
           
         />
       </UFormGroup>
-      <UButton @click="handleLogin" color="primary" block class="mb-4">
+      <UButton @click="handleLogin" color="blue" block class="mb-4">
         Login
       </UButton>
 
       <p class="text-center text-muted">
         Don't have an account?
-        <NuxtLink to="/register" class="text-primary hover:underline">
+        <NuxtLink to="/register" class="text-blue-500 hover:underline">
           Sign up
         </NuxtLink>
       </p>
@@ -50,6 +50,7 @@ const email = ref("");
 const password = ref("");
 const { login } = useAuth();
 const authStore = useAuthStore();
+const toast = useToast()
 
 definePageMeta({
   middleware: "guest",
@@ -63,7 +64,9 @@ const handleLogin = async () => {
       email: email.value,
       uid: userCredential.user.uid,
     });
-    alert("Login successful");
+    
+    toast.add({ title: 'Login succesful!' })
+    
 
     if (authStore.isAdmin) {
       navigateTo("/admin");
@@ -71,7 +74,8 @@ const handleLogin = async () => {
       navigateTo("/polls");
     }
   } catch (error) {
-    alert(error.message);
+    
+    toast.add({ title: error.message })
   }
 };
 </script>

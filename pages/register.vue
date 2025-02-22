@@ -32,7 +32,7 @@
           Already have an account?
           <NuxtLink
             to="/login"
-            class="text-primary font-medium hover:underline"
+            class="text-blue-500 font-medium hover:underline"
           >
             Login
           </NuxtLink>
@@ -45,19 +45,23 @@
 <script setup>
 import { ref } from "vue";
 import { useAuth } from "~/composables/useAuth";
+import { navigateTo } from "#app";
 const router = useRouter();
 
 const email = ref("");
 const password = ref("");
 const { register } = useAuth();
+const toast = useToast()
 
 const handleSignup = async () => {
   try {
     await register(email.value, password.value);
-    alert("Account Created! Now login.");
-    router.push("/login");
+   
+    toast.add({ title: 'Account Created! Now login.' })
+    navigateTo("/polls");
   } catch (error) {
-    alert(error.message);
+
+    toast.add({ title: error.message })
   }
 };
 </script>

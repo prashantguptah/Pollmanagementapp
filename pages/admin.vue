@@ -16,9 +16,15 @@
 
       <!-- Poll Creation Modal -->
       <UModal v-model="showPollForm">
-        <UCard class="w-full">
+        <UCard class="w-full" :ui="{ background: 'bg-white' }">
           <template #header>
-            <h3 class="text-xl font-semibold">Create a Poll</h3>
+            <div class="flex items-center space-x-2">
+              <UIcon
+                name="i-heroicons-document-text"
+                class="w-6 h-6 text-blue-500"
+              />
+              <h3 class="text-xl font-semibold">Create a Poll</h3>
+            </div>
           </template>
 
           <UInput
@@ -123,11 +129,8 @@
         </UCard>
       </UModal>
 
-
-      
-
       <!-- Poll List -->
-      <UContainer>
+      <!-- <UContainer>
   <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-6">
     <UCard
       v-for="poll in polls"
@@ -186,9 +189,13 @@
       </template>
     </UCard>
   </div>
-</UContainer>
+</UContainer> -->
 
-
+      <AdminPollList
+        :polls="polls"
+        @edit="editPoll"
+        @delete="deletePollHandler"
+      />
     </div>
   </div>
 </template>
@@ -198,6 +205,8 @@ import { ref, computed, onMounted } from "vue";
 import { usePolls } from "~/composables/usePolls";
 import { useAuthStore } from "~/store";
 import { nextTick } from "vue";
+import AdminPollList from "~/components/AdminPollList.vue";
+const toast = useToast()
 
 const { createPoll, getPolls, deletePoll, updatePoll } = usePolls();
 const authStore = useAuthStore();
@@ -285,11 +294,13 @@ const handleCreatePoll = async () => {
   );
 
   if (!pollTitle.value.trim()) {
-    alert("Poll title cannot be empty.");
+    // alert("Poll title cannot be empty.");
+    toast.add({ title: 'Poll title cannot be empty' })
     return;
   }
   if (filteredOptions.length < 2) {
-    alert("Poll must have at least two options.");
+    // alert("Poll must have at least two options.");
+    toast.add({ title: 'Poll must have at least two options.' })
     return;
   }
 
@@ -345,11 +356,13 @@ const handleUpdatePoll = async () => {
     .filter((option) => option !== "");
 
   if (!editPollData.value.title.trim()) {
-    alert("Poll title cannot be empty!");
+    // alert("Poll title cannot be empty!");
+    toast.add({ title: 'Poll title cannot be empty' })
     return;
   }
   if (filteredOptions.length < 2) {
-    alert("Poll must have at least two valid options!");
+    // alert("Poll must have at least two valid options!");
+    toast.add({ title: 'Poll must have at least two valid options!' })
     return;
   }
 
@@ -391,16 +404,14 @@ const addEditOption = async () => {
 
 const removeEditOption = (index) => editPollData.value.options.splice(index, 1);
 
-
-
-// getting vote percentage
-const getVotePercentage = (poll, option) => {
-  const totalVotes = Object.values(poll.votes || {}).reduce(
-    (sum, count) => sum + count,
-    0
-  );
-  return totalVotes > 0 ? ((poll.votes?.[option] || 0) / totalVotes) * 100 : 0;
-};
+// // getting vote percentage
+// const getVotePercentage = (poll, option) => {
+//   const totalVotes = Object.values(poll.votes || {}).reduce(
+//     (sum, count) => sum + count,
+//     0
+//   );
+//   return totalVotes > 0 ? ((poll.votes?.[option] || 0) / totalVotes) * 100 : 0;
+// };
 
 onMounted(fetchPolls);
 </script>
